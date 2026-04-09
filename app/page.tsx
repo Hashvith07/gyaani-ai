@@ -281,9 +281,9 @@ const [isSpeaking, setIsSpeaking] = useState(false)
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.22),_transparent_35%),linear-gradient(180deg,#09090b_0%,#111827_50%,#09090b_100%)] text-white">
-    <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-5 lg:px-8">
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-5 lg:px-8">
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3">
-  <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-white/50">
+<label className="mb-2 block text-xs uppercase tracking-[0.18em] text-white/50">
     Debate topic
   </label>
   <input
