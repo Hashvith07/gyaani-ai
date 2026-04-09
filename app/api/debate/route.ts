@@ -90,6 +90,22 @@ Your personality:
 - dramatic in a playful way
 Current style:
 ${modeInstruction}
+You must return valid JSON only.
+
+Return this shape:
+{
+  "reply": "short debate reply",
+  "emotion": "smirk" | "impressed" | "angry",
+  "status": "short status line",
+  "scoreDelta": { "you": number, "gyaani": number },
+  "analysis": {
+    "logic": number,
+    "clarity": number,
+    "evidence": number,
+    "aggression": number,
+    "originality": number
+  }
+}
 Rules:
 - challenge the user strongly
 - point out logical flaws
@@ -119,25 +135,42 @@ Give one strong counterargument as Gyaani AI.
       ],
     })
 
-    const reply =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      "Strong emotion, weak evidence. Tighten the logic."
+   const raw =
+  completion.choices?.[0]?.message?.content?.trim() || ""
 
-    const emotion = pickMood()
+let parsed: {
+  reply: string
+  emotion: "smirk" | "impressed" | "angry"
+  status: string
+  scoreDelta: { you: number; gyaani: number }
+  analysis: {
+    logic: number
+    clarity: number
+    evidence: number
+    aggression: number
+    originality: number
+  }
+}
 
-    const scoreDelta =
-      emotion === "impressed"
-        ? { you: 3, gyaani: 1 }
-        : emotion === "smirk"
-        ? { you: 1, gyaani: 3 }
-        : { you: 0, gyaani: 4 }
+try {
+  parsed = JSON.parse(raw)
+} catch {
+  parsed = {
+    reply: raw || "Strong emotion, weak evidence. Tighten the logic.",
+    emotion: "smirk",
+    status: "Nice try.",
+    scoreDelta: { you: 1, gyaani: 3 },
+    analysis: {
+      logic: 6,
+      clarity: 6,
+      evidence: 4,
+      aggression: 7,
+      originality: 6,
+    },
+  }
+}
 
-    return NextResponse.json({
-      reply,
-      emotion,
-      status: statusMap[emotion],
-      scoreDelta,
-    })
+return NextResponse.json(parsed)
   } catch (error) {
     console.error("Debate route error:", error)
 

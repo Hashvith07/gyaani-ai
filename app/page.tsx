@@ -1,9 +1,15 @@
 "use client"
 
+import { div } from "framer-motion/client"
 import { useState } from "react"
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition"
-
+  import { useEffect, useRef } from "react"
 export default function GyaaniDebateCompanion() {
+const bottomRef = useRef<HTMLDivElement | null>(null) 
+  const [isBlinking, setIsBlinking] = useState(false)
+const [isSpeaking, setIsSpeaking] = useState(false)
+  const [history, setHistory] = useState<any[]>([])
+  const [screen, setScreen] = useState<"debate" | "dashboard">("debate")
   const [message, setMessage] = useState("")
   const [topic, setTopic] = useState("AI Regulation")
   const [mode, setMode] = useState("savage")
@@ -12,7 +18,9 @@ export default function GyaaniDebateCompanion() {
   const [emotion, setEmotion] = useState("smirk")
   const [status, setStatus] = useState("I'm not convinced.")
   const [transcript, setTranscript] = useState([
- 
+  
+  
+   
     {
       side: "you",
       text: "AI should be regulated before it becomes too powerful.",
@@ -212,6 +220,16 @@ export default function GyaaniDebateCompanion() {
           Math.min(100, prev.gyaani + (data.scoreDelta?.gyaani ?? 0))
         ),
       }))
+      setHistory((prev) => [
+  ...prev,
+  {
+    topic,
+    user: userText,
+    ai: data.reply,
+    score,
+    time: new Date().toLocaleTimeString(),
+  },
+])
 
       setRound((r) => r + 1)
 
@@ -298,6 +316,18 @@ export default function GyaaniDebateCompanion() {
     </button>
   ))}
 </div>
+<div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3">
+  <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-white/50">
+    Debate topic
+  </label>
+
+  <input
+    value={topic}
+    onChange={(e) => setTopic(e.target.value)}
+    placeholder="Enter any topic..."
+    className="h-12 w-full rounded-2xl border border-white/10 bg-black/20 px-4 text-sm text-white placeholder:text-white/35 outline-none focus:border-fuchsia-400/40"
+  />
+</div>
 
           <div className="grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-black/20 p-3">
            <Stat label="Topic" value={topic || "No topic"} />
@@ -310,7 +340,44 @@ export default function GyaaniDebateCompanion() {
             <ScoreCard title="Gyaani" score={score.gyaani} hint="Confidence + spice" />
           </div>
         </header>
+        <div className="flex gap-2">
+  <button
+    onClick={() => setScreen("debate")}
+    className={`px-4 py-2 rounded-xl ${
+      screen === "debate"
+        ? "bg-white text-black"
+        : "bg-white/10 text-white"
+    }`}
+  >
+    Debate
+  </button>
 
+  <button
+    onClick={() => setScreen("dashboard")}
+    className={`px-4 py-2 rounded-xl ${
+      screen === "dashboard"
+        ? "bg-white text-black"
+        : "bg-white/10 text-white"
+    }`}
+    
+  >
+    Dashboard
+    
+  </button>
+  <button
+  onClick={() => setScreen("dashboard")}
+>
+  Dashboard
+</button>
+
+<button
+  onClick={() => setHistory([])}
+  className="mt-4 rounded-xl bg-red-500 px-4 py-2 text-white"
+>
+  Clear History
+</button>
+</div>
+     {screen === "debate" ? (
         <main className="grid flex-1 grid-cols-1 gap-5 lg:grid-cols-[1.1fr_0.9fr_1.1fr]">
           <section className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-xl backdrop-blur">
             <PanelTitle title="Your transcript" subtitle="Points, rebuttals, pressure moments" />
@@ -318,6 +385,9 @@ export default function GyaaniDebateCompanion() {
               {transcript.filter((item) => item.side === "you").map((item, idx) => (
                 <Bubble key={`${item.side}-${idx}`} side="you" tag={item.tag} text={item.text} />
               ))}
+              <div ref={bottomRef} />
+  
+
             </div>
           </section>
 
@@ -330,13 +400,17 @@ export default function GyaaniDebateCompanion() {
 
               <div className="relative mt-4 flex flex-1 items-center justify-center">
                 <div className={`absolute h-72 w-72 rounded-full bg-gradient-to-br ${current.ring} blur-3xl`} />
-                <div className={`relative flex h-[360px] w-[280px] ${current.tilt} flex-col items-center justify-center rounded-[2.5rem] border border-white/15 bg-gradient-to-b from-white/10 to-white/5 shadow-[0_0_60px_rgba(139,92,246,0.18)] transition-all duration-500`}>
+                <div className={`relative flex h-[360px] w-[280px]animate-[float_3s_ease-in-out_infinite] ${current.tilt} flex-col items-center justify-center rounded-[2.5rem] border border-white/15 bg-gradient-to-b from-white/10 to-white/5 shadow-[0_0_60px_rgba(139,92,246,0.18)] transition-all duration-500`}>
                   <div className="absolute top-4 rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs text-white/70">
                     Emotion: {emotion}
                   </div>
 
-                  <div className="mb-6 text-center text-5xl tracking-[0.4em] text-white/90">{current.eyes}</div>
-                  <div className="mb-8 text-center text-6xl text-white/80">{current.mouth}</div>
+                  <span className={isBlinking ? "opacity-40" : "opacity-100"}>
+  {isBlinking ? "— —" : current.eyes}
+</span>
+                 <span className={isSpeaking ? "animate-pulse" : ""}>
+  {isSpeaking ? "◡" : current.mouth}
+</span>
 
                   <div className="flex w-full max-w-[220px] justify-center gap-3">
                     <div className="h-24 w-16 rounded-[999px] border border-white/10 bg-white/5" />
@@ -460,9 +534,59 @@ export default function GyaaniDebateCompanion() {
             </div>
           </section>
            </main>
-      </div>
+          ) : (
+        <div className="mt-6 space-y-4">
+          <h2 className="text-xl font-bold">Your Debate History</h2>
+
+          {history.length === 0 && (
+            <p className="text-white/60">No debates yet.</p>
+          )}
+
+          {history.map((item, index) => (
+            <div
+              key={index}
+              className="rounded-2xl border border-white/10 bg-white/5 p-4"
+            >
+              <div className="text-sm text-white/50">{item.time}</div>
+
+              <div className="mt-2 font-semibold">
+                Topic: {item.topic}
+              </div>
+
+              <div className="mt-2 text-sm">
+                <strong>You:</strong> {item.user}
+              </div>
+
+              <div className="text-sm">
+                <strong>Gyaani:</strong> {item.ai}
+              </div>
+
+              <div className="mt-2 text-xs text-white/60">
+                Score → You: {item.score.you} | Gyaani: {item.score.gyaani}
+              </div>
+               <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-white/70">
+      <div>Logic: {item.analysis?.logic ?? "-"}/10</div>
+      <div>Clarity: {item.analysis?.clarity ?? "-"}/10</div>
+      <div>Evidence: {item.analysis?.evidence ?? "-"}/10</div>
+      <div>Aggression: {item.analysis?.aggression ?? "-"}/10</div>
+      <div>Originality: {item.analysis?.originality ?? "-"}/10</div>
     </div>
-  )
+            </div>
+          ))}
+
+          <button
+            onClick={() => setHistory([])}
+            className="mt-4 rounded-xl bg-red-500 px-4 py-2 text-white"
+          >
+            Clear History
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)  
+  
+  
 }
 
 function PanelTitle({
@@ -564,4 +688,5 @@ function Bubble({
 function setMood(arg0: any) {
   throw new Error("Function not implemented.")
 }
+
 
