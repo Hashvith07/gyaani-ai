@@ -1,10 +1,6 @@
 import Groq from "groq-sdk"
 import { NextResponse } from "next/server"
 
-const client = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-})
-
 const moodPool = ["smirk", "impressed", "angry"] as const
 
 const statusMap: Record<(typeof moodPool)[number], string> = {
@@ -71,7 +67,10 @@ export async function POST(req: Request) {
       })
       .filter(Boolean)
       .join("\n")
-
+    
+    const client = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+})
     const completion = await client.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       temperature: 0.9,
