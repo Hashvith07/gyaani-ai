@@ -465,7 +465,13 @@ export default function GyaaniDebateCompanion() {
   )
 }
 
-function PanelTitle({ title, subtitle }) {
+function PanelTitle({
+  title,
+  subtitle,
+}: {
+  title: string
+  subtitle: string
+}) {
   return (
     <div>
       <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
@@ -474,16 +480,25 @@ function PanelTitle({ title, subtitle }) {
   )
 }
 
-function Stat({ label, value }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-      <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">{label}</div>
+      <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">
+        {label}
+      </div>
       <div className="mt-2 text-sm font-semibold text-white/90">{value}</div>
     </div>
   )
 }
-
-function ScoreCard({ title, score, hint }) {
+function ScoreCard({
+  title,
+  score,
+  hint,
+}: {
+  title: string
+  score: number
+  hint: string
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
       <div className="flex items-center justify-between">
@@ -500,22 +515,47 @@ function ScoreCard({ title, score, hint }) {
   )
 }
 
-function MiniMetric({ label, value }) {
+function MiniMetric({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-      <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">{label}</div>
+      <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">
+        {label}
+      </div>
       <div className="mt-2 text-base font-semibold text-white/90">{value}</div>
     </div>
   )
 }
 
-function Bubble({ side, tag, text }) {
+function Bubble({
+  side,
+  tag,
+  text,
+}: {
+  side: "you" | "gyaani"
+  tag: string
+  text: string
+}) {
   const isYou = side === "you"
+
   return (
-    <div className={`rounded-3xl border p-4 ${isYou ? "border-cyan-300/15 bg-cyan-400/10" : "border-fuchsia-300/15 bg-fuchsia-500/10"}`}>
+    <div
+      className={`rounded-3xl border p-4 ${
+        isYou
+          ? "border-cyan-300/15 bg-cyan-400/10"
+          : "border-fuchsia-300/15 bg-fuchsia-500/10"
+      }`}
+    >
       <div className="mb-2 flex items-center justify-between gap-3">
         <div className="text-sm font-medium">{isYou ? "You" : "Gyaani"}</div>
-        <div className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/60">{tag}</div>
+        <div className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/60">
+          {tag}
+        </div>
       </div>
       <p className="text-sm leading-6 text-white/80">{text}</p>
     </div>
